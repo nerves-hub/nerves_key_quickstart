@@ -1,0 +1,77 @@
+<div>
+  <h2>NervesKey Config<h2>
+
+  <div class="container">
+      <div class="row">
+        <div class="col">
+          <label for="module-type">Module type:</label>
+          <%= @module_type %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label for="serial">Manufacturer Serial:</label>
+          <%= @serial %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label for="device-cert">Device Certificate:</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <textarea disabled class="cert" rows="10" cols="60" name="device-cert"><%= @device_cert %></textarea>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label for="signer-cert">Signer Certificate:</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <textarea disabled class="cert" rows="10" cols="60" name="signer-cert"><%= @signer_cert %></textarea>
+        </div>
+      </div>
+      <%= if @has_aux_certificates? do %>
+      <div class="row">
+        <div class="col">
+          <label for="device-aux-cert">Device Aux Certificate:</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <textarea disabled class="cert" rows="10" cols="60" name="device-aux-cert"><%= @device_cert_aux %></textarea>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label for="signer-aux-cert">Signer Aux Certificate:</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <textarea disabled class="cert" rows="10" cols="60" name="signer-aux-cert"><%= @signer_cert_aux %></textarea>
+        </div>
+      </div>
+      <% else %>
+      <div class="row">
+        <div class="col">
+          No Aux Certificate
+        </div>
+      </div>
+      <% end %>
+      <div class="row">
+        <div class="col">
+          <label for="settings">Settings:</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <textarea disabled class="cert" rows="10" cols="60" name="settings"><%= inspect @settings %></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

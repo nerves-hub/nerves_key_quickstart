@@ -1,0 +1,102 @@
+<div>
+  <h2>Provisioning<h2>
+
+  <form phx-submit="submit" phx-change="validate" >
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <label for="module-type">Module type:</label>
+          <%= @module_type %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label for="serial">Manufacturer Serial Number</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <input type="text" name="serial" value="<%= @serial %>" placeholder="device-1234"/>
+          <span class="error" style="display: <%= if @serial_error != nil do %>block<% else %>none<% end %>;"><%= @serial_error %></span>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <label for="signer-cert">Signer Certificate PEM</label>
+        </div>
+        <div class="col">
+          <%= if @signer_cert_64 != "" do %>
+          <a download="signer-cert.pem" class="float-right" href="data:application/octet-stream;charset=utf-8;base64,<%= @signer_cert_64 %>">Download signer certificate</a>
+          <% end %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <textarea class="cert" rows="10" cols="60" name="signer-cert"><%= @signer_cert %></textarea>
+          <span class="error" style="display: <%= if @certificate_error != nil do %>block<% else %>none<% end %>;"><%= @certificate_error %></span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label for="signer-key">Signer Private Key PEM</label>
+        </div>
+        <div class="col">
+          <%= if @signer_key_64 != "" do %>
+          <a download="signer-key.pem" class="float-right" href="data:application/octet-stream;charset=utf-8;base64,<%= @signer_key_64 %>">Download signer private key</a>
+          <% end %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <textarea class="key" rows="10" cols="60" name="signer-key"><%= @signer_key %></textarea>
+          <span class="error" style="display: <%= if @private_key_error != nil do %>block<% else %>none<% end %>;"><%= @private_key_error %></span>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="input-group mb-3 float-left col">
+          <div class="input-group-prepend">
+          <label for="years-valid">Signer years valid</label>
+          <input name="years-valid" type="text" class="form-control" placeholder="1" value="<%= @years_valid %>">
+          <span class="error" style="display: <%= if @years_valid_error != nil do %>block<% else %>none<% end %>;"><%= @years_valid_error %></span>
+          </div>
+            <button type="button" phx-click="gen-cert" class="btn btn-secondary">
+              Generate Signing Certificate
+            </button>
+        </div>
+        <div class="col">
+          <button type="button" data-toggle="modal" data-target="#confirmationModal" class="btn btn-primary float-right" <%= if @signer_key == "" or @signer_cert == "" or @certificate_error != nil or @private_key_error != nil or @serial_error != nil do %>disabled<% end %>>Provision NervesKey</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="confirmationModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Provisioning Info</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p class="error">Provisioning NervesKey can only be done once!</p>
+            <p>Double check your settings.</p>
+            <p>Make sure you have downloaded the signing certificate and store it in a safe place. The signing certificate can be used to sign additional NervesKeys.</p>
+            <p>Are you sure you would like to continue?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger">Provision</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+
+
+
