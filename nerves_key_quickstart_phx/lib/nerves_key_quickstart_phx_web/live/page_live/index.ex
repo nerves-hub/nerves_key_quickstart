@@ -19,7 +19,9 @@ defmodule NervesKeyQuickstartPhxWeb.PageLive.Index do
     module_type =
       if detected? do
         {:ok, info} = NervesKey.Config.device_info(transport)
+
         Map.get(info, :rev_num, "Error getting rev number")
+        |> module_type_string()
       end
 
     device_cert =
@@ -228,4 +230,9 @@ defmodule NervesKeyQuickstartPhxWeb.PageLive.Index do
   def cert_to_pem(cert) do
     X509.Certificate.to_pem(cert)
   end
+
+  defp module_type_string(:ecc608_1), do: "ATECC608A Rev 1"
+  defp module_type_string(:ecc608_2), do: "ATECC608A Rev 2"
+  defp module_type_string(:ecc508a), do: "ATECC508A"
+  defp module_type_string(other), do: to_string(other)
 end
