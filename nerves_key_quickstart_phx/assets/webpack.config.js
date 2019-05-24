@@ -5,7 +5,7 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const VENDOR_LIBS = [
-  'jquery', 'popper.js', 'webpack-jquery-ui', 'nestedSortable'
+  'jquery', 'popper.js'
 ]
 
 module.exports = (env, options) => ({
@@ -22,6 +22,14 @@ module.exports = (env, options) => ({
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, '../priv/static/js')
+  },
+  resolve : {
+    alias: {
+      // bind version of jquery-ui
+      "jquery-ui": "jquery-ui/jquery-ui.js",
+      // bind to modules;
+      modules: path.join(__dirname, "node_modules"),
+    }
   },
   module: {
     rules: [

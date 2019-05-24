@@ -1,0 +1,395 @@
+version: 2.0
+
+defaults: &defaults
+  docker:
+    - image: nervesproject/nerves_system_br:1.7.1
+  working_directory: "/tmp/nerves"
+
+elixir_version: &elixir_version
+  ELIXIR_VERSION: 1.8.2-otp-21
+  SECRET_KEY_BASE: ${SECRET_KEY_BASE:-BGC824f8kh1IQPXK7bUmXDigrw404rA7rivR96vGv4bhMIRogiaFN7Z6R4duZClA}
+  LIVE_VIEW_SIGNING_SALT: ${LIVE_VIEW_SIGNING_SALT:-2GiUN2NDLEnYT8I/3Q+XL6LGUGEKGogh}
+
+install_elixir: &install_elixir
+  run:
+    name: Install Elixir
+    command: |
+      wget https://repo.hex.pm/builds/elixir/v$ELIXIR_VERSION.zip
+      mkdir -p $HOME/bin
+      unzip -d $HOME/bin/elixir v$ELIXIR_VERSION.zip
+      echo 'export PATH=$HOME/bin/elixir/bin:$PATH' >> $BASH_ENV
+
+install_hex_rebar: &install_hex_rebar
+  run:
+    name: Install hex and rebar
+    command: |
+      mix local.hex --force
+      mix local.rebar --force
+
+install_nerves_bootstrap: &install_nerves_bootstrap
+  run:
+    name: Install nerves_bootstrap
+    command: |
+      mix archive.install hex nerves_bootstrap --force
+
+install_ghr: &install_ghr
+  run:
+    name: Install ghr (Github Releases)
+    command: |
+      wget https://github.com/tcnksm/ghr/releases/download/v0.9.0/ghr_v0.9.0_linux_amd64.tar.gz
+      tar xf ghr_v0.9.0_linux_amd64.tar.gz
+      ln -sf ghr_v0.9.0_linux_amd64/ghr .
+
+install_system_deps: &install_system_deps
+  run:
+    name: Install system dependencies
+    command: |
+      apt update
+      apt install -y zip
+
+fake_ssh_keys: &fake_ssh_keys
+  run:
+    name: Generage bogus keys
+    command: |
+      rm -f ~/.ssh/id_rsa
+      ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+
+build_assets: &build_assets
+  working_directory: "/tmp/nerves"
+  docker:
+    - image: circleci/node:8.11.3
+  steps:
+    - checkout
+    - restore_cache:
+        key: nerves/deps_fw/{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+    - restore_cache:
+        key: nerves/deps_phx/{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+    - run:
+        name: Build assets
+        command: |
+          cd nerves_key_quickstart_phx/assets
+          npm install
+          npm run deploy
+    - save_cache:
+        key: nerves/assets/{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+        paths:
+          - nerves_key_quickstart_phx/priv/static
+
+fetch_deps: &fetch_deps
+  steps:
+    - checkout
+    - <<: *fake_ssh_keys
+    - <<: *install_elixir
+    - <<: *install_hex_rebar
+    - <<: *install_nerves_bootstrap
+    - run:
+        name: Fetch fw deps
+        command: |
+          cd nerves_key_quickstart_fw
+          n=0
+          until [ $n -ge 5 ]; do
+            mix deps.get && break
+            n=$((n+1))
+            echo "Error while fetching deps. Retrying in 5 seconds"
+            sleep 5
+          done
+    - run:
+        name: Fetch phx deps
+        command: |
+          cd nerves_key_quickstart_phx
+          n=0
+          until [ $n -ge 5 ]; do
+            mix deps.get && break
+            n=$((n+1))
+            echo "Error while fetching deps. Retrying in 5 seconds"
+            sleep 5
+          done
+    - save_cache:
+        key: nerves/deps_fw/{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+        paths:
+          - nerves_key_quickstart_fw/deps
+    - save_cache:
+        key: nerves/deps_phx/{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+        paths:
+          - nerves_key_quickstart_phx/deps
+
+build_test: &build_test
+  steps:
+    - checkout
+    - <<: *fake_ssh_keys
+    - <<: *install_system_deps
+    - <<: *install_elixir
+    - <<: *install_hex_rebar
+    - <<: *install_nerves_bootstrap
+    - restore_cache:
+        key: nerves/deps_fw/{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+    - restore_cache:
+        key: nerves/deps_phx/{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+    - run:
+        name: Check formatting
+        command: |
+          cd nerves_key_quickstart_fw
+          mix format --check-formatted
+          cd ../nerves_key_quickstart_phx
+          mix format --check-formatted
+
+build: &build
+  steps:
+    - checkout
+    - <<: *fake_ssh_keys
+    - <<: *install_system_deps
+    - <<: *install_elixir
+    - <<: *install_hex_rebar
+    - <<: *install_nerves_bootstrap
+    - run: echo "$MIX_TARGET" > .target
+    - restore_cache:
+        key: nerves/deps_fw/{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+    - restore_cache:
+        key: nerves/deps_phx/{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+    - restore_cache:
+          key: nerves/assets/{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+    - run:
+        name: Fetch fw deps
+        command: |
+          cd nerves_key_quickstart_fw
+          n=0
+          until [ $n -ge 5 ]; do
+            mix deps.get && break
+            n=$((n+1))
+            echo "Error while fetching deps. Retrying in 5 seconds"
+            sleep 5
+          done
+    - run:
+        name: Build
+        command: |
+          cd nerves_key_quickstart_fw
+          mix compile
+          mix phx.digest
+    - run:
+        name: Create firmware
+        command: |
+          cd nerves_key_quickstart_fw
+          mix firmware
+          mix firmware.image
+    - run:
+          name: Create artifacts dir
+          command: mkdir -p deploy/artifacts
+    - run:
+        name: Copy firmware file
+        command: |
+          cp nerves_key_quickstart_fw/_build/*/nerves/images/*.fw deploy/artifacts/nerves_key_quickstart_${MIX_TARGET}.fw
+          zip nerves_key_quickstart_${MIX_TARGET}.zip nerves_key_quickstart_fw/nerves_key_quickstart_fw.img
+          cp nerves_key_quickstart_${MIX_TARGET}.zip deploy/artifacts
+          cp ./CHANGELOG.md deploy/CHANGELOG.md
+    - store_artifacts:
+        path: deploy
+        destination: images
+    - save_cache:
+        key: nerves/deploy/{{ checksum ".target" }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+        paths:
+          - deploy
+
+jobs:
+  fetch_deps:
+    <<: *defaults
+    environment:
+      <<: *elixir_version
+    <<: *fetch_deps
+
+  test:
+    <<: *defaults
+    environment:
+      <<: *elixir_version
+    <<: *build_test
+
+  build_assets:
+    environment:
+      <<: *elixir_version
+    <<: *build_assets
+
+  build_rpi3a:
+    <<: *defaults
+    environment:
+      <<: *elixir_version
+      MIX_TARGET: rpi3a
+    <<: *build
+
+  build_rpi3:
+    <<: *defaults
+    environment:
+      <<: *elixir_version
+      MIX_TARGET: rpi3
+    <<: *build
+
+  build_rpi2:
+    <<: *defaults
+    environment:
+      <<: *elixir_version
+      MIX_TARGET: rpi2
+    <<: *build
+
+  build_rpi:
+    <<: *defaults
+    environment:
+      <<: *elixir_version
+      MIX_TARGET: rpi
+    <<: *build
+
+  build_rpi0:
+    <<: *defaults
+    environment:
+      <<: *elixir_version
+      MIX_TARGET: rpi0
+    <<: *build
+
+  build_bbb:
+    <<: *defaults
+    environment:
+      <<: *elixir_version
+      MIX_TARGET: bbb
+    <<: *build
+
+  build_x86_64:
+    <<: *defaults
+    environment:
+      <<: *elixir_version
+      MIX_TARGET: x86_64
+    <<: *build
+
+  deploy:
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *install_ghr
+      - run:
+          name: Create Artifacts Dir
+          command: mkdir -p deploy
+      - run:
+          name: rpi3a
+          command: echo "rpi3a" > .target
+      - restore_cache:
+          key: nerves/deploy/{{ checksum ".target" }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+      - run:
+          name: rpi3
+          command: echo "rpi3" > .target
+      - restore_cache:
+          key: nerves/deploy/{{ checksum ".target" }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+      - run:
+          name: rpi2
+          command: echo "rpi2" > .target
+      - restore_cache:
+          key: nerves/deploy/{{ checksum ".target" }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+      - run:
+          name: rpi2
+          command: echo "rpi2" > .target
+      - restore_cache:
+          key: nerves/deploy/{{ checksum ".target" }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+      - run:
+          name: rpi
+          command: echo "rpi" > .target
+      - restore_cache:
+          key: nerves/deploy/{{ checksum ".target" }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+      - run:
+          name: rpi0
+          command: echo "rpi0" > .target
+      - restore_cache:
+          key: nerves/deploy/{{ checksum ".target" }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+      - run:
+          name: bbb
+          command: echo "bbb" > .target
+      - restore_cache:
+          key: nerves/deploy/{{ checksum ".target" }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+      # - run:
+      #     name: x86_64
+      #     command: echo "x86_64" > .target
+      # - restore_cache:
+      #     key: nerves/deploy/{{ checksum ".target" }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
+      - run:
+          name: Create release notes
+          command: grep -Pazo "(?s)(?<=## ${CIRCLE_TAG})[^#]+" deploy/CHANGELOG.md | sed '/./,$!d' > deploy/RELEASE_NOTES
+      - store_artifacts:
+          path: deploy
+          destination: images
+      - run:
+          name: Deploy artifacts to Github
+          command: ./ghr -draft -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME -b "$(cat deploy/RELEASE_NOTES)" -replace $CIRCLE_TAG deploy/artifacts
+
+
+workflows:
+  version: 2
+  pipeline:
+    jobs:
+      - fetch_deps:
+          context: org-global
+      - test:
+          context: org-global
+          requires:
+            - fetch_deps
+      - build_assets:
+          context: org-global
+          requires:
+            - test
+      - build_rpi3a:
+          context: org-global
+          requires:
+            - build_assets
+          filters:
+            tags:
+              only: /.*/
+      - build_rpi3:
+          context: org-global
+          requires:
+            - build_assets
+          filters:
+            tags:
+              only: /.*/
+      - build_rpi2:
+          context: org-global
+          requires:
+            - build_assets
+          filters:
+            tags:
+              only: /.*/
+      - build_rpi:
+          context: org-global
+          requires:
+            - build_assets
+          filters:
+            tags:
+              only: /.*/
+      - build_rpi0:
+          context: org-global
+          requires:
+            - build_assets
+          filters:
+            tags:
+              only: /.*/
+      - build_bbb:
+          context: org-global
+          requires:
+            - build_assets
+          filters:
+            tags:
+              only: /.*/
+      # - build_x86_64:
+      #     context: org-global
+      #     requires:
+      #       - build_assets
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      - deploy:
+          context: org-global
+          requires:
+            - build_rpi3a
+            - build_rpi3
+            - build_rpi2
+            - build_rpi
+            - build_rpi0
+            - build_bbb
+            # - build_x86_64
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v.*/
