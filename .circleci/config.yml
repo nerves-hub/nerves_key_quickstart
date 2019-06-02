@@ -280,11 +280,6 @@ jobs:
       - restore_cache:
           key: nerves/deploy/{{ checksum ".target" }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
       - run:
-          name: rpi2
-          command: echo "rpi2" > .target
-      - restore_cache:
-          key: nerves/deploy/{{ checksum ".target" }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
-      - run:
           name: rpi
           command: echo "rpi" > .target
       - restore_cache:
@@ -313,7 +308,6 @@ jobs:
       - run:
           name: Deploy artifacts to Github
           command: ./ghr -draft -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME -b "$(cat deploy/RELEASE_NOTES)" -replace $CIRCLE_TAG deploy/artifacts
-
 
 workflows:
   version: 2
