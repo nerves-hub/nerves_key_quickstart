@@ -315,14 +315,23 @@ workflows:
     jobs:
       - fetch_deps:
           context: org-global
+          filters:
+            tags:
+              only: /.*/
       - test:
           context: org-global
           requires:
             - fetch_deps
+          filters:
+            tags:
+              only: /.*/
       - build_assets:
           context: org-global
           requires:
             - test
+          filters:
+            tags:
+              only: /.*/
       - build_rpi3a:
           context: org-global
           requires:
