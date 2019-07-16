@@ -5,10 +5,13 @@
 # is restricted to this project.
 use Mix.Config
 
+config :nerves_key_quickstart_fw, target: Mix.target()
+
 # Customize non-Elixir parts of the firmware. See
 # https://hexdocs.pm/nerves/advanced-configuration.html for details.
 
 config :nerves, :firmware, rootfs_overlay: "rootfs_overlay"
+config :nerves_runtime, :kernel, use_system_registry: false
 
 # Use shoehorn to start the main application. See the shoehorn
 # docs for separating out critical OTP applications such as those
@@ -54,12 +57,27 @@ config :nerves_firmware_ssh,
 # Only enable this for prod if you understand the risks.
 node_name = if Mix.env() != :prod, do: "nerves_key_quickstart_fw"
 
-config :nerves_init_gadget,
-  ifname: "usb0",
-  address_method: :dhcpd,
-  mdns_domain: "nerves-key.local",
-  node_name: node_name,
-  node_host: :mdns_domain
+network_config =
+  case Mix.target() do
+    board when board in [:rpi0, :rpi3a, :bbb] ->
+      [ifname: "usb0", address_method: :dhcpd]
+
+    board when board in [:rpi, :rpi2, :rpi3, :rpi4, :x86_64] ->
+      [ifname: "eth0", address_method: :dhcp]
+
+    :host ->
+      []
+  end
+
+init_gadget_config =
+  network_config ++
+    [
+      mdns_domain: "nerves-key.local",
+      node_name: node_name,
+      node_host: :mdns_domain
+    ]
+
+config :nerves_init_gadget, init_gadget_config
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason

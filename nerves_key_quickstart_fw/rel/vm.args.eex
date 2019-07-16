@@ -4,8 +4,7 @@
 ##  The cookie needs to be configured prior to vm boot for
 ##  for read only filesystem.
 
-# -name nerves_key_quickstart_fw@0.0.0.0
--setcookie e6e7gcfqiynhfmm3rj3n6mobothjqzpdcgfboha7wl7bzy43gq3hxd2x2kv2ctd2
+-setcookie <%= @release.options[:cookie] %>
 
 ## Use Ctrl-C to interrupt the current shell rather than invoking the emulator's
 ## break handler and possibly exiting the VM.
