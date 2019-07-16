@@ -6,14 +6,19 @@ defmodule NervesKeyQuickstartPhxWeb.PageLive.Index do
   def mount(_session, socket) do
     transport = NervesKey.transport()
     detected? = NervesKey.detected?(transport)
-    provisioned? = NervesKey.provisioned?(transport)
+    provisioned? = detected? and NervesKey.provisioned?(transport)
 
     serial =
-      if detected? and provisioned? do
-        NervesKey.manufacturer_sn(transport)
-      else
-        %{manufacturer_sn: serial} = NervesKey.default_info(transport)
-        serial
+      cond do
+        detected? and provisioned? ->
+          NervesKey.manufacturer_sn(transport)
+
+        detected? ->
+          %{manufacturer_sn: serial} = NervesKey.default_info(transport)
+          serial
+
+        true ->
+          "N/A"
       end
 
     module_type =
