@@ -160,10 +160,9 @@ build: &build
             sleep 5
           done
     - run:
-        name: Build
+        name: Digest assets
         command: |
-          cd nerves_key_quickstart_fw
-          mix compile
+          cd nerves_key_quickstart_phx
           mix phx.digest
     - run:
         name: Create firmware
