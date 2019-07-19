@@ -206,6 +206,13 @@ jobs:
       <<: *elixir_version
     <<: *build_assets
 
+  build_rpi4:
+    <<: *defaults
+    environment:
+      <<: *elixir_version
+      MIX_TARGET: rpi4
+    <<: *build
+
   build_rpi3a:
     <<: *defaults
     environment:
@@ -263,6 +270,9 @@ jobs:
       - run:
           name: Create Artifacts Dir
           command: mkdir -p deploy
+      - run:
+          name: rpi4
+          command: echo "rpi4" > .target
       - run:
           name: rpi3a
           command: echo "rpi3a" > .target
@@ -331,6 +341,13 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - build_rpi4:
+          context: org-global
+          requires:
+            - build_assets
+          filters:
+            tags:
+              only: /.*/
       - build_rpi3a:
           context: org-global
           requires:
@@ -383,6 +400,7 @@ workflows:
       - deploy:
           context: org-global
           requires:
+            - build_rpi4
             - build_rpi3a
             - build_rpi3
             - build_rpi2
