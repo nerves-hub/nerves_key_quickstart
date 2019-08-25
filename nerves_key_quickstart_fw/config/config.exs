@@ -89,10 +89,16 @@ config :nerves_key_quickstart_phx, NervesKeyQuickstartPhxWeb.Endpoint,
   http: [port: 80],
   code_reloader: false,
   server: true,
-  secret_key_base: System.get_env("SECRET_KEY_BASE"),
+  secret_key_base:
+    System.get_env(
+      "SECRET_KEY_BASE",
+      "RfoMiFptBfeCcOUmN9ZkUHII7qkEZQxi1r+4sEP1X7NDDUmcYY21Qjms7Xa4PCnu"
+    ),
   render_errors: [view: NervesKeyQuickstartPhxWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: NervesKeyQuickstartPhx.PubSub, adapter: Phoenix.PubSub.PG2],
-  live_view: [signing_salt: System.get_env("LIVE_VIEW_SIGNING_SALT")]
+  live_view: [
+    signing_salt: System.get_env("LIVE_VIEW_SIGNING_SALT", "hCTSF+Yp0MwbMB5lzZRMV/L1JXFL68rI")
+  ]
 
 config :nerves_key_quickstart_phx, :modules, [
   {NervesKey, NervesKey},
