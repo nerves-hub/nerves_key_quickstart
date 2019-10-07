@@ -273,6 +273,8 @@ jobs:
       - run:
           name: rpi4
           command: echo "rpi4" > .target
+      - restore_cache:
+          key: nerves/deploy/{{ checksum ".target" }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
       - run:
           name: rpi3a
           command: echo "rpi3a" > .target
