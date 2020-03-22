@@ -61,7 +61,7 @@ defmodule NervesKeyQuickstart.Mock.NervesKey do
   end
 
   def provisioned?(transport) do
-    Map.get(transport, :provisioned?, true)
+    Map.get(transport, :provisioned?, false)
   end
 
   def provision(transport, _info, _signer_cert, _signer_key) do
