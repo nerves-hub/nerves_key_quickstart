@@ -84,7 +84,7 @@ defmodule NervesKeyQuickstartPhxWeb.PageLive.Index do
        signer_cert_64: "",
        signer_key: "",
        signer_key_64: "",
-       years_valid: "1",
+       years_valid: "3",
        serial_error: nil,
        certificate_error: nil,
        private_key_error: nil,
