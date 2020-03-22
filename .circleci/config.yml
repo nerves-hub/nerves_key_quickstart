@@ -2,11 +2,11 @@ version: 2.0
 
 defaults: &defaults
   docker:
-    - image: nervesproject/nerves_system_br:1.8.2
+    - image: nervesproject/nerves_system_br:1.11.0
   working_directory: "/tmp/nerves"
 
 elixir_version: &elixir_version
-  ELIXIR_VERSION: 1.9.0-otp-22
+  ELIXIR_VERSION: 1.10.2-otp-22
   SECRET_KEY_BASE: ${SECRET_KEY_BASE:-BGC824f8kh1IQPXK7bUmXDigrw404rA7rivR96vGv4bhMIRogiaFN7Z6R4duZClA}
   LIVE_VIEW_SIGNING_SALT: ${LIVE_VIEW_SIGNING_SALT:-2GiUN2NDLEnYT8I/3Q+XL6LGUGEKGogh}
 

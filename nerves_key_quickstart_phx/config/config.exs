@@ -5,7 +5,7 @@
 # is restricted to this project.
 
 # General application configuration
-use Mix.Config
+import Config
 
 # Configures the endpoint
 config :nerves_key_quickstart_phx, NervesKeyQuickstartPhxWeb.Endpoint,
