@@ -59,7 +59,6 @@ defmodule NervesKeyQuickstartFw.MixProject do
       # Dependencies for all targets except :host
       {:nerves_runtime, "~> 0.6", targets: @all_targets},
       {:nerves_pack, "~> 0.2", targets: @all_targets},
-      {:nerves_key, "~> 0.5.1 or ~> 0.6", targets: @all_targets, override: true},
       {:nerves_time, "~> 0.4", targets: @all_targets},
 
       # Dependencies for specific targets
