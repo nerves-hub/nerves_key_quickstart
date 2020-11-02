@@ -1,12 +1,12 @@
 version: 2.0
 
 defaults: &defaults
-  docker:
-    - image: nervesproject/nerves_system_br:1.11.0
   working_directory: "/tmp/nerves"
+  docker:
+    - image: nervesproject/nerves_system_br:1.13.2
 
 elixir_version: &elixir_version
-  ELIXIR_VERSION: 1.10.2-otp-22
+  ELIXIR_VERSION: 1.10.4-otp-23
   SECRET_KEY_BASE: ${SECRET_KEY_BASE:-BGC824f8kh1IQPXK7bUmXDigrw404rA7rivR96vGv4bhMIRogiaFN7Z6R4duZClA}
   LIVE_VIEW_SIGNING_SALT: ${LIVE_VIEW_SIGNING_SALT:-2GiUN2NDLEnYT8I/3Q+XL6LGUGEKGogh}
 
@@ -206,6 +206,13 @@ jobs:
       <<: *elixir_version
     <<: *build_assets
 
+  build_osd32mp1:
+    <<: *defaults
+    environment:
+      <<: *elixir_version
+      MIX_TARGET: osd32mp1
+    <<: *build
+
   build_rpi4:
     <<: *defaults
     environment:
@@ -270,6 +277,11 @@ jobs:
       - run:
           name: Create Artifacts Dir
           command: mkdir -p deploy
+      - run:
+          name: osd32mp1
+          command: echo "osd32mp1" > .target
+      - restore_cache:
+          key: nerves/deploy/{{ checksum ".target" }}-{{ .Revision }}-{{ .Environment.CIRCLE_TAG }}
       - run:
           name: rpi4
           command: echo "rpi4" > .target
@@ -343,6 +355,13 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - build_osd32mp1:
+          context: org-global
+          requires:
+            - build_assets
+          filters:
+            tags:
+              only: /.*/
       - build_rpi4:
           context: org-global
           requires:
@@ -402,6 +421,7 @@ workflows:
       - deploy:
           context: org-global
           requires:
+            - build_osd32mp1
             - build_rpi4
             - build_rpi3a
             - build_rpi3
