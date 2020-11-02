@@ -1,9 +1,10 @@
-defmodule NervesKeyQuickstartPhxWeb.PageLive.Index do
-  use Phoenix.LiveView
+defmodule NervesKeyQuickstartPhxWeb.PageLive do
+  use NervesKeyQuickstartPhxWeb, :live_view
 
   alias NervesKeyQuickstart.Adapter.NervesKey
 
-  def mount(_session, socket) do
+  @impl true
+  def mount(_params, _session, socket) do
     transport = NervesKey.transport()
     detected? = NervesKey.detected?(transport)
     provisioned? = detected? and NervesKey.provisioned?(transport)
@@ -93,6 +94,7 @@ defmodule NervesKeyQuickstartPhxWeb.PageLive.Index do
      )}
   end
 
+  @impl true
   def render(%{detected?: false} = assigns) do
     NervesKeyQuickstartPhxWeb.PageView.render("no-key.html", assigns)
   end
@@ -105,6 +107,7 @@ defmodule NervesKeyQuickstartPhxWeb.PageLive.Index do
     NervesKeyQuickstartPhxWeb.PageView.render("configure.html", assigns)
   end
 
+  @impl true
   def handle_event("submit", _payload, %{assigns: assigns} = socket) do
     info = %{manufacturer_sn: assigns.serial, board_name: "NervesKey"}
     signer_cert = X509.Certificate.from_pem!(assigns.signer_cert)
@@ -116,7 +119,7 @@ defmodule NervesKeyQuickstartPhxWeb.PageLive.Index do
         _ -> put_flash(socket, :error, "An error occurred while provisioning")
       end
 
-    {:stop, redirect(socket, to: "/")}
+    {:noreply, redirect(socket, to: "/")}
   end
 
   def handle_event("gen-cert", _payload, socket) do
@@ -170,6 +173,7 @@ defmodule NervesKeyQuickstartPhxWeb.PageLive.Index do
      )}
   end
 
+  @impl true
   def handle_info(:validate, %{assigns: assigns} = socket) do
     {:noreply,
      assign(socket,

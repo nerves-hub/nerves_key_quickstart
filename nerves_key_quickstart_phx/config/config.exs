@@ -5,15 +5,19 @@
 # is restricted to this project.
 
 # General application configuration
-import Config
+use Mix.Config
 
 # Configures the endpoint
 config :nerves_key_quickstart_phx, NervesKeyQuickstartPhxWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: System.get_env("SECRET_KEY_BASE"),
-  render_errors: [view: NervesKeyQuickstartPhxWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: NervesKeyQuickstartPhx.PubSub, adapter: Phoenix.PubSub.PG2],
-  live_view: [signing_salt: System.get_env("LIVE_VIEW_SIGNING_SALT")]
+  secret_key_base: "nYDeisWonkvKTcv2HsWX54SmIfWMc+5gE0mJfo2RkEj7eaBltaLM0pEyweb+YxwE",
+  render_errors: [
+    view: NervesKeyQuickstartPhxWeb.ErrorView,
+    accepts: ~w(html json),
+    layout: false
+  ],
+  pubsub_server: NervesKeyQuickstartPhx.PubSub,
+  live_view: [signing_salt: "nWieH1bz"]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -22,8 +26,6 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
-
-config :phoenix, :template_engines, leex: Phoenix.LiveView.Engine
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

@@ -1,4 +1,4 @@
-import Config
+use Mix.Config
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
@@ -51,7 +51,7 @@ config :nerves_key_quickstart_phx, NervesKeyQuickstartPhxWeb.Endpoint,
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/nerves_key_quickstart_phx_web/{live,views}/.*(ex)$",
+      ~r"lib/nerves_key_quickstart_phx_web/(live|views)/.*(ex)$",
       ~r"lib/nerves_key_quickstart_phx_web/templates/.*(eex)$"
     ]
   ]
