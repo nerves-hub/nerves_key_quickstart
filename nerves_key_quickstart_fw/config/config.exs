@@ -3,9 +3,12 @@
 #
 # This configuration file is loaded before any dependency and
 # is restricted to this project.
-import Config
+use Mix.Config
 
-config :nerves_key_quickstart_fw, target: Mix.target()
+# Enable the Nerves integration with Mix
+Application.start(:nerves_bootstrap)
+
+config :circuits_quickstart, target: Mix.target()
 
 # Customize non-Elixir parts of the firmware. See
 # https://hexdocs.pm/nerves/advanced-configuration.html for details.
@@ -26,23 +29,23 @@ config :logger, backends: [RingLogger]
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :phoenix, :template_engines, leex: Phoenix.LiveView.Engine
-
 config :nerves_key_quickstart_phx, NervesKeyQuickstartPhxWeb.Endpoint,
   url: [host: "nerves-key.local"],
-  http: [port: 80],
+  http: [
+    port: "80",
+    transport_options: [socket_opts: [:inet6]]
+  ],
+  cache_static_manifest: "priv/static/cache_manifest.json",
   code_reloader: false,
   server: true,
-  secret_key_base:
-    System.get_env(
-      "SECRET_KEY_BASE",
-      "RfoMiFptBfeCcOUmN9ZkUHII7qkEZQxi1r+4sEP1X7NDDUmcYY21Qjms7Xa4PCnu"
-    ),
-  render_errors: [view: NervesKeyQuickstartPhxWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: NervesKeyQuickstartPhx.PubSub, adapter: Phoenix.PubSub.PG2],
-  live_view: [
-    signing_salt: System.get_env("LIVE_VIEW_SIGNING_SALT", "hCTSF+Yp0MwbMB5lzZRMV/L1JXFL68rI")
-  ]
+  secret_key_base: "nYDeisWonkvKTcv2HsWX54SmIfWMc+5gE0mJfo2RkEj7eaBltaLM0pEyweb+YxwE",
+  render_errors: [
+    view: NervesKeyQuickstartPhxWeb.ErrorView,
+    accepts: ~w(html json),
+    layout: false
+  ],
+  pubsub_server: NervesKeyQuickstartPhx.PubSub,
+  live_view: [signing_salt: "nWieH1bz"]
 
 config :nerves_key_quickstart_phx, :modules, [
   {NervesKey, NervesKey},
