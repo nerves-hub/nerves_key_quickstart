@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.0
+
+* Updates
+  * Add ssh username and password (nerves-key/nerves-key) for those who want to
+    use the CLI interface
+  * Add OSD32MP1 build
+  * Bump nearly all packages to their latest versions
+
 ## v0.2.1
 
 * Bug fixes

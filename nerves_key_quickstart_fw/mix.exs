@@ -2,7 +2,7 @@ defmodule NervesKeyQuickstartFw.MixProject do
   use Mix.Project
 
   @app :nerves_key_quickstart_fw
-  @version "0.2.1"
+  @version "0.3.0"
   @all_targets [:rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :rpi4, :bbb, :osd32mp1, :x86_64]
 
   def project do
