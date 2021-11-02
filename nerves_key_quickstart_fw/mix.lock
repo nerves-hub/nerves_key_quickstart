@@ -47,7 +47,7 @@
   "plug_crypto": {:hex, :plug_crypto, "1.2.0", "1cb20793aa63a6c619dd18bb33d7a3aa94818e5fd39ad357051a67f26dfa2df6", [:mix], [], "hexpm", "a48b538ae8bf381ffac344520755f3007cc10bd8e90b240af98ea29b69683fc2"},
   "ranch": {:hex, :ranch, "1.7.1", "6b1fab51b49196860b733a49c07604465a47bdb78aa10c1c16a3d199f7f8c881", [:rebar3], [], "hexpm", "451d8527787df716d99dc36162fca05934915db0b6141bbdac2ea8d3c7afc7d7"},
   "ring_logger": {:hex, :ring_logger, "0.8.2", "78e0ffbf89b3f5b3c58f8660cb6b6fe2ca7ed5f56dc64e993119189d629c278c", [:mix], [{:circular_buffer, "~> 0.4.0", [hex: :circular_buffer, repo: "hexpm", optional: false]}], "hexpm", "864c8982bfcdc17b7501d00cc2bcede6727ebf95cbeba30e70c795d03f9138c1"},
-  "shoehorn": {:hex, :shoehorn, "0.7.0", "fc23870fb6b470f5c520fee692637b120a36e163842ab497bbec7e8a1aa6cfe3", [:mix], [], "hexpm", "eeb317ac677b228906039ccf532a582ad9f6d31d7958c98f5c853fe0459e0243"},
+  "shoehorn": {:hex, :shoehorn, "0.8.0", "05023f3d8da1713d14b7dada4be8d8c0f78b7bc40175036486d17c4323207d1b", [:mix], [], "hexpm", "17254e143b00a25fd7074e9fdf52abaac14ed670cbf50f783ab409f8938f6061"},
   "socket": {:hex, :socket, "0.3.13", "98a2ab20ce17f95fb512c5cadddba32b57273e0d2dba2d2e5f976c5969d0c632", [:mix], [], "hexpm", "f82ea9833ef49dde272e6568ab8aac657a636acb4cf44a7de8a935acb8957c2e"},
   "ssh_subsystem_fwup": {:hex, :ssh_subsystem_fwup, "0.6.0", "821b9cdf52b8dcc286183bce7641e62589373642a10180cd4cadd8e322bc4e8e", [:mix], [], "hexpm", "e5bcc923af4ae49368177437d20383730d096281beb18e9e9a36806aff1ca750"},
   "system_registry": {:hex, :system_registry, "0.8.2", "df791dc276652fcfb53be4dab823e05f8269b96ac57c26f86a67838dbc0eefe7", [:mix], [], "hexpm", "f7acdede22c73ab0b3735eead7f2095efb2a7a6198366564205274db2ca2a8f8"},
