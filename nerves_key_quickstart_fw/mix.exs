@@ -48,7 +48,7 @@ defmodule NervesKeyQuickstartFw.MixProject do
       {:nerves_key_quickstart_phx, path: "../nerves_key_quickstart_phx"},
 
       # Dependencies for all targets except :host
-      {:nerves_runtime, "~> 0.11.3", targets: @all_targets},
+      {:nerves_runtime, "~> 0.13.0", targets: @all_targets},
       {:nerves_pack, "~> 0.5.0", targets: @all_targets},
       {:nerves_time, "~> 0.4", targets: @all_targets},
 
