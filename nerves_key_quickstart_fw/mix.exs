@@ -44,7 +44,7 @@ defmodule NervesKeyQuickstartFw.MixProject do
       {:nerves, "~> 1.7.0", runtime: false},
       {:shoehorn, "~> 0.8.0"},
       {:ring_logger, "~> 0.8.1"},
-      {:toolshed, "~> 0.2.13"},
+      {:toolshed, "~> 0.3.1"},
       {:nerves_key_quickstart_phx, path: "../nerves_key_quickstart_phx"},
 
       # Dependencies for all targets except :host
